@@ -2,11 +2,13 @@ package lover.zoe.com.weatherdemo.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lover.zoe.com.weatherdemo.MainActivity;
 import lover.zoe.com.weatherdemo.R;
+import lover.zoe.com.weatherdemo.WeatherActivity;
 import lover.zoe.com.weatherdemo.entity.City;
 import lover.zoe.com.weatherdemo.entity.County;
 import lover.zoe.com.weatherdemo.entity.Province;
@@ -103,6 +107,19 @@ public class ChooiceAreaFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectCity = cityList.get(i);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY) {
+                    if (getActivity() instanceof MainActivity) {
+                        Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weather_id", countyList.get(i).getWeatherId());
+                        getActivity().startActivity(intent);
+                        getActivity().finish();
+                    } else if (getActivity() instanceof WeatherActivity) {
+                        WeatherActivity weatherActivity = (WeatherActivity) getActivity();
+                        weatherActivity.drawerLayout.closeDrawers();
+                        weatherActivity.swipeRefreshLayout.setRefreshing(true);
+                        weatherActivity.requestWeather(countyList.get(i).getWeatherId());
+                    }
+
                 }
             }
         });
@@ -192,7 +209,7 @@ public class ChooiceAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getActivity(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

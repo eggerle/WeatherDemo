@@ -2,12 +2,15 @@ package lover.zoe.com.weatherdemo.utils;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import lover.zoe.com.weatherdemo.entity.City;
 import lover.zoe.com.weatherdemo.entity.County;
 import lover.zoe.com.weatherdemo.entity.Province;
+import lover.zoe.com.weatherdemo.entity.Weather;
 
 /**
  * Created by zoe on 2017/3/6.
@@ -75,5 +78,22 @@ public class Utility {
             }
         }
         return false;
+    }
+
+
+    public static Weather handleWeatherRespone(String response) {
+
+        Weather weather = new Weather();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherStr = jsonArray.getString(0);
+            weather = new Gson().fromJson(weatherStr, Weather.class);
+            return weather;
+        } catch (Exception e) {
+
+        }
+
+        return null;
     }
 }

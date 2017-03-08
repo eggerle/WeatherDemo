@@ -1,11 +1,13 @@
 package lover.zoe.com.weatherdemo.entity;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by zoe on 2017/3/7.
  */
 public class AQI {
 
-    public AQICity aqiCity;
+    public AQICity city;
 
     public class AQICity {
         public String aqi;
