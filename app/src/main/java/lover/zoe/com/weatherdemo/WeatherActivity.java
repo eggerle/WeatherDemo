@@ -50,6 +50,7 @@ public class WeatherActivity extends AppCompatActivity {
     public SwipeRefreshLayout swipeRefreshLayout;
     public DrawerLayout drawerLayout;
 
+    private String weatherId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,7 @@ public class WeatherActivity extends AppCompatActivity {
         initView();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         String weatherStr = sharedPreferences.getString("weather", null);
-        final String weatherId;
+
         if (!TextUtils.isEmpty(weatherStr) && weatherStr != null) {
             Weather weather = Utility.handleWeatherRespone(weatherStr);
             weatherId = weather.basic.weatherId;
@@ -145,9 +146,9 @@ public class WeatherActivity extends AppCompatActivity {
         scrollView.setVisibility(View.VISIBLE);
     }
 
-    public void requestWeather(String weatherId) {
+    public void requestWeather(String weather_Id) {
         String requestUrl = "http://guolin.tech/api/weather?cityid=" +
-                weatherId + "&key=2cf50045af8d4545b245a1522e0f39cb";
+                weather_Id + "&key=2cf50045af8d4545b245a1522e0f39cb";
         HttpUtils.sendOkHttpRequest(requestUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -173,6 +174,7 @@ public class WeatherActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
                             editor.putString("weather", responseString);
                             editor.apply();
+                            weatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
                         } else {
                             Toast.makeText(mContext, "获取天气信息失败", Toast.LENGTH_SHORT).show();

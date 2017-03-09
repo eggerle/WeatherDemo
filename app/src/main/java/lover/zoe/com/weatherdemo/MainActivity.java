@@ -2,6 +2,8 @@ package lover.zoe.com.weatherdemo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,11 +18,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherStr = sharedPreferences.getString("weather", null);
-        if (!TextUtils.isEmpty(weatherStr) && weatherStr != null) {
-            Intent intent = new Intent(this, WeatherActivity.class);
-            startActivity(intent);
-        }
+
+        handler.sendEmptyMessage(0);
+
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                String weatherStr = sharedPreferences.getString("weather", null);
+                if (!TextUtils.isEmpty(weatherStr) && weatherStr != null) {
+                    Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
+                    startActivity(intent);
+                }
+            }
+        }
+    };
 }
