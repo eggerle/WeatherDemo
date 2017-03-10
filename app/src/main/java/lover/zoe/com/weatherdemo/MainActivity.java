@@ -21,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
 
         handler.sendEmptyMessage(0);
 
+
+
+
     }
 
     Handler handler = new Handler() {

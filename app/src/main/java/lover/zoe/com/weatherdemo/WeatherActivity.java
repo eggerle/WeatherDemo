@@ -1,6 +1,7 @@
 package lover.zoe.com.weatherdemo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -24,6 +25,7 @@ import java.io.IOException;
 
 import lover.zoe.com.weatherdemo.entity.Forecast;
 import lover.zoe.com.weatherdemo.entity.Weather;
+import lover.zoe.com.weatherdemo.service.AutoUpdateService;
 import lover.zoe.com.weatherdemo.utils.HttpUtils;
 import lover.zoe.com.weatherdemo.utils.Utility;
 import okhttp3.Call;
@@ -112,43 +114,52 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void showWeatherInfo(Weather weather) {
-        titleCity.setText(weather.basic.cityName);
-        titleUpdateTime.setText(weather.basic.update.updateTime);
-        degreeText.setText(weather.now.tmp);
-        weatherInfoText.setText(weather.now.cond.txt);
-        aqiText.setText(weather.basic.cityName);
+        if (weather != null && "ok".equals(weather.status)) {
+            titleCity.setText(weather.basic.cityName);
+            titleUpdateTime.setText(weather.basic.update.updateTime);
+            degreeText.setText(weather.now.tmp);
+            weatherInfoText.setText(weather.now.cond.txt);
+            aqiText.setText(weather.basic.cityName);
 
-        forecastLayout.removeAllViews();
-        for (Forecast forecast : weather.forecastsList) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.forecast_item, null);
-            TextView dateText = (TextView) view.findViewById(R.id.date_text);
-            TextView infoText = (TextView) view.findViewById(R.id.info_text);
-            TextView maxText = (TextView) view.findViewById(R.id.max_text);
-            TextView minText = (TextView) view.findViewById(R.id.min_text);
-            dateText.setText(forecast.date);
-            infoText.setText(forecast.cond.txt_d);
-            maxText.setText(forecast.tmp.max);
-            minText.setText(forecast.tmp.min);
-            forecastLayout.addView(view);
+            forecastLayout.removeAllViews();
+            for (Forecast forecast : weather.forecastsList) {
+                View view = LayoutInflater.from(mContext).inflate(R.layout.forecast_item, null);
+                TextView dateText = (TextView) view.findViewById(R.id.date_text);
+                TextView infoText = (TextView) view.findViewById(R.id.info_text);
+                TextView maxText = (TextView) view.findViewById(R.id.max_text);
+                TextView minText = (TextView) view.findViewById(R.id.min_text);
+                dateText.setText(forecast.date);
+                infoText.setText(forecast.cond.txt_d);
+                maxText.setText(forecast.tmp.max);
+                minText.setText(forecast.tmp.min);
+                forecastLayout.addView(view);
+            }
+            if (weather.aqi != null) {
+                aqiText.setText(weather.aqi.city.aqi);
+                pm25Text.setText(weather.aqi.city.pm25);
+            }
+
+            String comfort = "舒适度：" + weather.suggestion.comf.txt;
+            String carWash = "洗车指数：" + weather.suggestion.cw.txt;
+            String sport = "运动指数：" + weather.suggestion.sport.txt;
+
+            comfortText.setText(comfort);
+            carWashText.setText(carWash);
+            sportText.setText(sport);
+            scrollView.setVisibility(View.VISIBLE);
+
+            Intent intent = new Intent(mContext, AutoUpdateService.class);
+            startService(intent);
+        } else {
+            Toast.makeText(mContext, "获取天气信息失败", Toast.LENGTH_SHORT).show();
         }
-        if (weather.aqi != null) {
-            aqiText.setText(weather.aqi.city.aqi);
-            pm25Text.setText(weather.aqi.city.pm25);
-        }
 
-        String comfort = "舒适度：" + weather.suggestion.comf.txt;
-        String carWash = "洗车指数：" + weather.suggestion.cw.txt;
-        String sport = "运动指数：" + weather.suggestion.sport.txt;
-
-        comfortText.setText(comfort);
-        carWashText.setText(carWash);
-        sportText.setText(sport);
-        scrollView.setVisibility(View.VISIBLE);
     }
 
-    public void requestWeather(String weather_Id) {
+    public void requestWeather(final String weatherId) {
+        this.weatherId = weatherId;
         String requestUrl = "http://guolin.tech/api/weather?cityid=" +
-                weather_Id + "&key=2cf50045af8d4545b245a1522e0f39cb";
+                weatherId + "&key=2cf50045af8d4545b245a1522e0f39cb";
         HttpUtils.sendOkHttpRequest(requestUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -174,7 +185,6 @@ public class WeatherActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
                             editor.putString("weather", responseString);
                             editor.apply();
-                            weatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
                         } else {
                             Toast.makeText(mContext, "获取天气信息失败", Toast.LENGTH_SHORT).show();
