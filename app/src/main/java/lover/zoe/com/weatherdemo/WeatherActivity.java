@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ScrollingView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +23,9 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import lover.zoe.com.weatherdemo.entity.Forecast;
 import lover.zoe.com.weatherdemo.entity.Weather;
 import lover.zoe.com.weatherdemo.service.AutoUpdateService;
@@ -35,22 +38,38 @@ import okhttp3.Response;
 public class WeatherActivity extends AppCompatActivity {
 
     private Context mContext;
-    private ScrollView scrollView;
-    private TextView titleCity;
-    private TextView titleUpdateTime;
-    private TextView degreeText;
-    private TextView weatherInfoText;
-    private TextView aqiText;
-    private TextView pm25Text;
-    private TextView comfortText;
-    private TextView carWashText;
-    private TextView sportText;
 
-    private Button mButton;
-
-    private LinearLayout forecastLayout;
+    @BindView(R.id.title_city)
+    TextView titleCity;
+    @BindView(R.id.title_update_time)
+    TextView titleUpdateTime;
+    @BindView(R.id.nav_button)
+    Button mButton;
+    @BindView(R.id.degree_text)
+    TextView degreeText;
+    @BindView(R.id.weather_info_text)
+    TextView weatherInfoText;
+    @BindView(R.id.forecast_layout)
+    LinearLayout forecastLayout;
+    @BindView(R.id.aqi_text)
+    TextView aqiText;
+    @BindView(R.id.pm25_text)
+    TextView pm25Text;
+    @BindView(R.id.comfort_text)
+    TextView comfortText;
+    @BindView(R.id.car_wash_text)
+    TextView carWashText;
+    @BindView(R.id.sport_text)
+    TextView sportText;
+    @BindView(R.id.weather_layout)
+    ScrollView scrollView;
+    @BindView(R.id.swipe_refresh)
     public SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.drawer_layout)
     public DrawerLayout drawerLayout;
+    @BindView(R.id.nav_layout)
+    LinearLayout nav_layout;
+
 
     private String weatherId;
 
@@ -63,8 +82,9 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_weather);
+        ButterKnife.bind(this);
         mContext = WeatherActivity.this;
-        initView();
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         String weatherStr = sharedPreferences.getString("weather", null);
 
@@ -79,13 +99,6 @@ public class WeatherActivity extends AppCompatActivity {
             requestWeather(weatherId);
         }
 
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -94,24 +107,6 @@ public class WeatherActivity extends AppCompatActivity {
         });
     }
 
-    private void initView() {
-
-        scrollView = (ScrollView) this.findViewById(R.id.weather_layout);
-        titleCity = (TextView) this.findViewById(R.id.title_city);
-        titleUpdateTime = (TextView) this.findViewById(R.id.title_update_time);
-        degreeText = (TextView) this.findViewById(R.id.degree_text);
-        weatherInfoText = (TextView) this.findViewById(R.id.weather_info_text);
-        aqiText = (TextView) this.findViewById(R.id.aqi_text);
-        pm25Text = (TextView) this.findViewById(R.id.pm25_text);
-        comfortText = (TextView) this.findViewById(R.id.comfort_text);
-        carWashText = (TextView) this.findViewById(R.id.car_wash_text);
-        sportText = (TextView) this.findViewById(R.id.sport_text);
-        forecastLayout = (LinearLayout) this.findViewById(R.id.forecast_layout);
-        swipeRefreshLayout = (SwipeRefreshLayout) this.findViewById(R.id.swipe_refresh);
-        drawerLayout = (DrawerLayout) this.findViewById(R.id.drawer_layout);
-        mButton = (Button) this.findViewById(R.id.nav_button);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-    }
 
     private void showWeatherInfo(Weather weather) {
         if (weather != null && "ok".equals(weather.status)) {
@@ -195,6 +190,19 @@ public class WeatherActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @OnClick({R.id.nav_button, R.id.nav_layout})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.nav_button:
+                drawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.nav_layout:
+                drawerLayout.openDrawer(GravityCompat.START);
+                Toast.makeText(mContext, "点击效果有了", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
 }

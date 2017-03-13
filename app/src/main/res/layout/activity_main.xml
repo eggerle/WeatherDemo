@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <fragment
-        android:id="@+id/choose_area_fragment"
+        android:id="@+id/main_choose_area_fragment"
         android:name="lover.zoe.com.weatherdemo.fragment.ChooiceAreaFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
